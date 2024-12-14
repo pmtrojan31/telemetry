@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Computer Telemetry</title>
+
+    <!-- Custom Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #e6f2ff, #f4f7f6);
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+    
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+    
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+    
+        /* Input and Button Styles */
+        .input-container {
+            margin-bottom: 30px;
+        }
+    
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+    
+        button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+            background-color: #2980b9;
+        }
+    
+        /* Graphs Layout */
+        .graphs-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns for the first four graphs */
+            grid-gap: 50px;
+            justify-content: center; /* Center the grid within the container */
+            padding-left: 130px; /* Push all graphs to the right */
+        }
+    
+        .mini-graph {
+            width: 300px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+    
+        .mini-graph:hover {
+            transform: scale(1.05);
+        }
+    
+        /* Icon Buttons */
+        .icon {
+            margin-top: 10px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+    
+        .icon i {
+            margin-right: 5px;
+        }
+    
+        .icon:hover {
+            background-color: #1a242f;
+        }
+    
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .graphs-container {
+                grid-template-columns: 1fr; /* Stack the graphs on smaller screens */
+                padding-left: 0; /* Remove left padding on small screens */
+            }
+        }
+    </style>
+    
+</head>
+
+<body>
+    <div class="container">
+        <h1>Flight Computer Telemetry</h1>
+
+        <div class="input-container">
+            <label for="port">Port:</label>
+            <input type="text" id="port" placeholder="Enter port number">
+            <button onclick="startTelemetry()">Enter</button>
+        </div>
+
+        <!-- Section for mini graphs -->
+        <div class="graphs-container">
+            <!-- Mini Altitude Graph -->
+            <div class="mini-graph">
+                <h3>Altitude</h3>
+                <div id="miniAltitudeChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('altitude')">
+                    <i class="fas fa-chart-line"></i> Go to Altitude
+                </button>
+            </div>
+
+            <!-- Mini Pressure Graph -->
+            <div class="mini-graph">
+                <h3>Pressure</h3>
+                <div id="miniPressureChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('pressure')">
+                    <i class="fas fa-tachometer-alt"></i> Go to Pressure
+                </button>
+            </div>
+
+            <!-- Temperature Graph -->
+            <div class="mini-graph">
+                <h3>Temperature</h3>
+                <div id="miniTemperatureChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('temperature')">
+                    <i class="fas fa-thermometer-half"></i> Go to Temperature
+                </button>
+            </div>
+
+            <!-- Gyrometer Graph -->
+            <div class="mini-graph">
+                <h3>Gyro X</h3>
+                <div id="miniGyroXChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('gyro_x')">
+                    <i class="fas fa-sync-alt"></i> Go to Gyro X
+                </button>
+            </div>
+
+            <!-- Gyro Y Graph -->
+            <div class="mini-graph">
+                <h3>Gyro Y</h3>
+                <div id="miniGyroYChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('gyro_y')">
+                    <i class="fas fa-sync-alt"></i> Go to Gyro Y
+                </button>
+            </div>
+
+            <!-- Gyro Z Graph -->
+            <div class="mini-graph">
+                <h3>Gyro Z</h3>
+                <div id="miniGyroZChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('gyro_z')">
+                    <i class="fas fa-sync-alt"></i> Go to Gyro Z
+                </button>
+            </div>
+
+            <!-- Acceleration Graph -->
+            <div class="mini-graph">
+                <h3>Acc X</h3>
+                <div id="miniAccXChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('acc_x')">
+                    <i class="fas fa-bolt"></i> Go to Acc X
+                </button>
+            </div>
+
+            <!-- Acc Y Graph -->
+            <div class="mini-graph">
+                <h3>Acc Y</h3>
+                <div id="miniAccYChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('acc_y')">
+                    <i class="fas fa-bolt"></i> Go to Acc Y
+                </button>
+            </div>
+
+            <!-- Acc Z Graph -->
+            <div class="mini-graph">
+                <h3>Acc Z</h3>
+                <div id="miniAccZChart" style="width: 300px; height: 200px;"></div>
+                <button class="icon" onclick="navigateTo('acc_z')">
+                    <i class="fas fa-bolt"></i> Go to Acc Z
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+    
+        function startTelemetry() {
+            const port = document.getElementById('port').value;
+            if (port) {
+                console.log(`Starting telemetry on port ${port}`);
+            } else {
+                alert("Please enter a port number");
+            }
+        }
+    
+        function navigateTo(page) {
+            ipcRenderer.send('navigate-to-page', page);
+        }
+    
+        // Helper function to create and update a graph with multiple traces
+        function createMiniGraph(graphId, label, minY, maxY) {
+            const trace = {
+                x: [],
+                y: [],
+                mode: 'lines',
+                name: label,
+                line: { width: 2 }
+            };
+    
+            var layout = {
+                margin: { t: 20, b: 20, l: 50, r: 20 },
+                xaxis: { title: 'Time (s)', gridcolor: '#dcdcdc' },
+                yaxis: { title: label, range: [minY, maxY], gridcolor: '#dcdcdc' },
+                paper_bgcolor: '#ffffff',
+                plot_bgcolor: '#f8f9fa'
+            };
+    
+            Plotly.newPlot(graphId, [trace], layout);
+    
+            return trace;
+        }
+    
+        // Create mini versions of graphs
+        var altitudeTrace = createMiniGraph('miniAltitudeChart', 'Altitude (m)', 0, 1000);
+        var pressureTrace = createMiniGraph('miniPressureChart', 'Pressure (Pa)', 50000, 150000);
+        var temperatureTrace = createMiniGraph('miniTemperatureChart', 'Temperature (°C)', -20, 60);
+        var gyroXTrace = createMiniGraph('miniGyroXChart', 'Gyro X (°/s)', -10, 10);
+        var gyroYTrace = createMiniGraph('miniGyroYChart', 'Gyro Y (°/s)', -10, 10);
+        var gyroZTrace = createMiniGraph('miniGyroZChart', 'Gyro Z (°/s)', -10, 10);
+        var accXTrace = createMiniGraph('miniAccXChart', 'Acc X (m/s²)', -20, 20);
+        var accYTrace = createMiniGraph('miniAccYChart', 'Acc Y (m/s²)', -20, 20);
+        var accZTrace = createMiniGraph('miniAccZChart', 'Acc Z (m/s²)', -20, 20);
+    
+        // WebSocket connection for telemetry data
+        const socket = new WebSocket('ws://localhost:5678');
+
+    
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            console.log(data)
+    
+            // Assuming 'time' is in seconds and corresponds to each received data point
+            const time = new Date();
+    
+            //Update the graphs with telemetry data
+            Plotly.extendTraces('miniAltitudeChart', { x: [[time]], y: [[data.Altitude]] }, [0]);
+            Plotly.extendTraces('miniPressureChart', { x: [[time]], y: [[data.Pressure]] }, [0]);
+            Plotly.extendTraces('miniTemperatureChart', { x: [[time]], y: [[data.Temperature]] }, [0]);
+            Plotly.extendTraces('miniGyroXChart', { x: [[time]], y: [[data.Gyro_x]] }, [0]);
+            Plotly.extendTraces('miniGyroYChart', { x: [[time]], y: [[data.Gyro_y]] }, [0]);
+            Plotly.extendTraces('miniGyroZChart', { x: [[time]], y: [[data.Gyro_z]] }, [0]);
+            Plotly.extendTraces('miniAccXChart', { x: [[time]], y: [[data.Acc_x]] }, [0]);
+            Plotly.extendTraces('miniAccYChart', { x: [[time]], y: [[data.Acc_y]] }, [0]);
+            Plotly.extendTraces('miniAccZChart', { x: [[time]], y: [[data.Acc_z]] }, [0]);
+
+            ipcRenderer.send('telemetry-data', {
+                time: time,
+                altitude: data.Altitude,
+                pressure: data.Pressure,
+                temperature: data.Temperature,
+                gyro_x: data.Gyro_x,
+                gyro_y: data.Gyro_y,
+                gyro_z: data.Gyro_z,
+                acc_x: data.Acc_x,
+                acc_y: data.Acc_y,
+                acc_z: data.Acc_z
+            })
+        };
+
+        socket.onopen = function () {
+            console.log('WebSocket connection established.');
+        };
+
+        socket.onclose = function () {
+            console.log('WebSocket connection closed.');
+        };
+    </script>
+</body>
+
+</html>

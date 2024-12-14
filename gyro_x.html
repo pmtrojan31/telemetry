@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Gyrometer X-Axis Data</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background: linear-gradient(to right, #e6f2ff, #f4f7f6); color: #333333; margin: 0; padding: 0; }
+        .container { text-align: center; padding: 40px; }
+        h1 { color: #2c3e50; margin-bottom: 40px; }
+        #gyroXChart { width: 600px; height: 400px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); }
+        .back-button { padding: 10px 20px; border-radius: 8px; background-color: #3498db; color: white; border: none; cursor: pointer; transition: background-color 0.3s ease; margin-top: 20px; }
+        .back-button:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-time Gyrometer X-Axis Data</h1>
+        <div id="gyroXChart"></div>
+        <button onclick="goBack()" class="back-button">Back</button>
+    </div>
+    <script>
+        const { ipcRenderer } = require('electron');
+        function goBack() { ipcRenderer.send('back-to-main'); }
+        var gyroXTrace = { x: [], y: [], mode: 'lines', name: 'Gyro X', line: { color: '#FF6347', width: 4 } };
+        var gyroXData = [gyroXTrace];
+        var gyroXLayout = { title: 'Real-Time Gyro X Data', xaxis: { title: 'Time (s)' }, yaxis: { title: 'Gyro X (°/s)', range: [-20, 20] } };
+        Plotly.newPlot('gyroXChart', gyroXData, gyroXLayout);
+        ipcRenderer.on('telemetry-data', (event, { time, gyro_x }) => {
+            const timeNumeric = new Date();
+            Plotly.extendTraces('gyroXChart', { x: [[timeNumeric]], y: [[gyro_x]] }, [0]);
+            const currentTime = timeNumeric;
+            Plotly.relayout('gyroXChart', { 'xaxis.range': [currentTime - 10_000, currentTime] });
+        });
+    </script>
+</body>
+</html>
